@@ -104,20 +104,20 @@ if __name__ == "__main__":
         DATA_WIDTH, DATA_HEIGHT)
 
     # Compute parameters for a Naive Bayes classifier using the basic feature
-    # extractor 
+    # extractor
     mp.compute_statistics(ALL_TRAINING_IMAGES, ALL_TRAINING_LABELS, DATA_WIDTH,
         DATA_HEIGHT, mp.extract_basic_features)
-
-    # Making predictions on validation data 
-    predicted_labels = mp.classify(ALL_VALIDATION_IMAGES, DATA_WIDTH, DATA_HEIGHT,
-        mp.extract_basic_features)
-
-    correct_count = 0.0
-    for ei in range(len(predicted_labels)):
-        if(ALL_VALIDATION_LABELS[ei] == predicted_labels[ei]):
-            correct_count += 1
-
-    print "Correct prediction: " + str(correct_count/len(predicted_labels))
+    #
+    # # Making predictions on validation data
+    # predicted_labels = mp.classify(ALL_VALIDATION_IMAGES, DATA_WIDTH, DATA_HEIGHT,
+    #     mp.extract_basic_features)
+    #
+    # correct_count = 0.0
+    # for ei in range(len(predicted_labels)):
+    #     if(ALL_VALIDATION_LABELS[ei] == predicted_labels[ei]):
+    #         correct_count += 1
+    #
+    # print "Correct prediction: " + str(correct_count/len(predicted_labels))
 
 
     
