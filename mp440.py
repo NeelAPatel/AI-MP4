@@ -4,6 +4,9 @@ Raise a "not defined" exception as a reminder
 # import util
 import sys
 import inspect
+import matplotlib as mpl
+import numpy as np
+import math
 
 
 def _raise_not_defined():
@@ -99,11 +102,17 @@ implementation.
 The percentage parameter controls what percentage of the example data
 should be used for training. 
 '''
-
+def getDomainList(mapList):
+	uniqueList = []
+	for x in mapList:
+		if x not in uniqueList:
+			uniqueList.append(x)
+	
+	return uniqueList
 
 def compute_statistics(data, label, width, height, feature_extractor, percentage=1):
 	# Your code starts here #
-	
+	sampleSize = int(float((percentage))*len(label))
 	# data = Training data = contains all the numbers in image form
 	
 	# 1. Take TrainingData => extract basic features => all images converted to 0s and 1s only, in 1D array
@@ -119,7 +128,7 @@ def compute_statistics(data, label, width, height, feature_extractor, percentage
 	arrIntegerIndex = [[],[],[],[],[],[],[],[],[],[]]
 	
 	index = 0
-	while index < len(label):
+	while index < sampleSize:
 		
 		if (label[index] == 0):
 			arrIntegerFreq[0] += 1
@@ -153,8 +162,7 @@ def compute_statistics(data, label, width, height, feature_extractor, percentage
 			arrIntegerIndex[9].append(index)
 	
 		index += 1
-	#print arrIntegerFreq
-	# print arrIntegerIndex
+	
 	
 	# currIndexArr = arrIntegerIndex[0]
 	# img = extract_basic_features(data[currIndexArr[0]], width, height)
@@ -173,7 +181,7 @@ def compute_statistics(data, label, width, height, feature_extractor, percentage
 		#print ("CURR: " + str(curr))
 		#print (str(currIndexArr))
 		
-		count = 1
+		# scanLimit = 1
 		for index in currIndexArr:
 			
 			img = extract_basic_features(data[index], width,height)
@@ -182,16 +190,20 @@ def compute_statistics(data, label, width, height, feature_extractor, percentage
 				if (img[x] == 1):
 					imgFreq[curr][x] += 1
 			
-			
-			if count == 2:
-				break
-			count += 1
+			#image scan limiter
+			# if scanLimit == 2:
+			# 	break
+			# scanLimit += 1
 		curr += 1
 	
 	print ()
 	print ()
 	print ()
-	print imgFreq
+	# print arrIntegerFreq
+	# print arrIntegerIndex
+	#print imgFreq
+	#print arrIntegerFreq
+	#print arrIntegerIndex
 	# for curr = 0
 	# 	- get array of indexes
 	# 	for index in array
@@ -202,8 +214,42 @@ def compute_statistics(data, label, width, height, feature_extractor, percentage
 	# 				imgFreq[curr][x][y] += 1
 	#
 	# 	- calculate based on frequencies, might need your help on this
-	
-	
+	print ()
+	print ()
+	print ()
+	laplaceImg = [[0] * (width * height) for i in range(10)]
+	laplaceSum = [0,0,0,0,0,0,0,0,0,0]
+	curr = 0
+	while curr <= 9:
+		currMap = imgFreq[curr]
+		#print ("CURR = " + str(curr))
+		# print (currMap)
+		mapDomain = getDomainList(currMap)
+		#print(mapDomain)
+		laplaceK = 2
+		lSum = 0
+		for x in currMap:
+			numerator = x
+			
+			denominator = sampleSize
+			
+			numerator += laplaceK
+			valV = len(mapDomain)
+			
+			denominator += (laplaceK* valV)
+			
+			#print ("Index: " + str(x) + " | " + str((numerator,denominator)))
+			laplaceImg[curr][x] = np.log(float(numerator)/denominator)
+			lSum += laplaceImg[curr][x]
+		
+		#get laplacesum of current number
+		laplaceSum[curr] = lSum + arrIntegerFreq[curr]
+		curr += 1
+		
+		
+	print ("LAPLACE TOTAL SUM")
+	print (laplaceSum)
+	print ()
 	return 0
 
 
