@@ -38,30 +38,7 @@ def extract_basic_features(digit_data, width, height):
 				features.append(1)
 			else:
 				features.append(0)
-		
-		# if (digit_data[x][y] == 0):
-		# 	features.append(0)
-		# else:
-		# 	features.append(1)
-	
-	# features = util.Counter()
-	# for x in range(width):
-	# 	for y in range(height):
-	# 		if digit_data.getPixel(x, y) > 0:
-	# 			features[(x, y)] = 1
-	# 		else:
-	# 			features[(x, y)] = 0
-	#print ("EXtract features")
-	#print (features)
-	#print (str(len(features)))
-	#
-	# print ()
-	# print ()
-	
-	# Features = 2d array with 1 and 0
-	# Features2 = 1D array of 1 and 0, 28x28
-	# Your code ends here #
-	# _raise_not_defined()
+
 	return features
 
 
@@ -112,120 +89,83 @@ def getDomainList(mapList):
 
 def compute_statistics(data, label, width, height, feature_extractor, percentage=1):
 	# Your code starts here #
-	sampleSize = int(float((percentage))*len(label))
-	# data = Training data = contains all the numbers in image form
+	sampleSize = int(float(percentage)*len(label))
 	
-	# 1. Take TrainingData => extract basic features => all images converted to 0s and 1s only, in 1D array
-	# 2. find len(data) => find % of len(data) = sample
-	# 3. Save first Sample amt of data (and first Sample amt of labels too)
-	# 4. use <some formula> to calculate for each sample
-	# 5. Store results in global array
 	
-	# Q1: What are labels? What are its purpose?
-	# Q2: What values do we map to the variables in the given formula
 	
+	# === PRIOR PROBABILITY ===
+	#arrIntegerFreq = counts how many time each integer appears in the sampleSize
+	#arrIntegerIndex = lists all the indexes that the integer appears on. i.e label[10] is a 0,
+	#                  so 10 would be part of arrIntegerIndex[0]'s list
 	arrIntegerFreq = [0,0,0,0,0,0,0,0,0,0]
 	arrIntegerIndex = [[],[],[],[],[],[],[],[],[],[]]
 	
 	index = 0
 	while index < sampleSize:
-		
-		if (label[index] == 0):
+		if label[index] == 0:
 			arrIntegerFreq[0] += 1
 			arrIntegerIndex[0].append(index)
-		elif (label[index] == 1):
+		elif label[index] == 1:
 			arrIntegerFreq[1] += 1
 			arrIntegerIndex[1].append(index)
-		elif (label[index] == 2):
+		elif label[index] == 2:
 			arrIntegerFreq[2] += 1
 			arrIntegerIndex[2].append(index)
-		elif (label[index] == 3):
+		elif label[index] == 3:
 			arrIntegerFreq[3] += 1
 			arrIntegerIndex[3].append(index)
-		elif (label[index] == 4):
+		elif label[index] == 4:
 			arrIntegerFreq[4] += 1
 			arrIntegerIndex[4].append(index)
-		elif (label[index] == 5):
+		elif label[index] == 5:
 			arrIntegerFreq[5] += 1
 			arrIntegerIndex[5].append(index)
-		elif (label[index] == 6):
+		elif label[index] == 6:
 			arrIntegerFreq[6] += 1
 			arrIntegerIndex[6].append(index)
-		elif (label[index] == 7):
+		elif label[index] == 7:
 			arrIntegerFreq[7] += 1
 			arrIntegerIndex[7].append(index)
-		elif (label[index] == 8):
+		elif label[index] == 8:
 			arrIntegerFreq[8] += 1
 			arrIntegerIndex[8].append(index)
-		elif (label[index] == 9):
+		elif label[index] == 9:
 			arrIntegerFreq[9] += 1
 			arrIntegerIndex[9].append(index)
 	
 		index += 1
 	
+	#print ("> Prior Probability Complete")
 	
-	# currIndexArr = arrIntegerIndex[0]
-	# img = extract_basic_features(data[currIndexArr[0]], width, height)
-	#
-	# print (img)
+	# === CONDITIONAL PROBABILITY ===
 	
-	
-	
-	imgFreq = [[0] * (width*height) for i in range(10)]
+	# Part 1: Count how many times 1 gets flagged for each integer.
+	imgFreq = [[0] * (width*height) for i in range(10)] # 10 elems of width*height size
 
 	curr = 0
 	while curr <= 9:
-
 		currIndexArr = arrIntegerIndex[curr]
 		
-		#print ("CURR: " + str(curr))
-		#print (str(currIndexArr))
-		
-		# scanLimit = 1
+		# for every occurance of 'curr' integer, get the image and count the 1s
 		for index in currIndexArr:
-			
 			img = extract_basic_features(data[index], width,height)
-
 			for x in range(width*height):
 				if (img[x] == 1):
 					imgFreq[curr][x] += 1
 			
-			#image scan limiter
-			# if scanLimit == 2:
-			# 	break
-			# scanLimit += 1
 		curr += 1
 	
-	print ()
-	print ()
-	print ()
-	# print arrIntegerFreq
-	# print arrIntegerIndex
-	#print imgFreq
-	#print arrIntegerFreq
-	#print arrIntegerIndex
-	# for curr = 0
-	# 	- get array of indexes
-	# 	for index in array
-	# 		img = extract (data[index])
-	#
-	# 		for x,y in width height
-	# 			if img[x][y] == 1
-	# 				imgFreq[curr][x][y] += 1
-	#
-	# 	- calculate based on frequencies, might need your help on this
-	print ()
-	print ()
-	print ()
-	laplaceImg = [[0] * (width * height) for i in range(10)]
-	laplaceSum = [0,0,0,0,0,0,0,0,0,0]
+	# Part 2 : LAPLACE
+	logImg = [[0] * (width * height) for i in range(10)]
+	laplaceSum = [0,0,0,0,0,0,0,0,0,0] #also known as conditional probability
 	curr = 0
 	while curr <= 9:
 		currMap = imgFreq[curr]
 		#print ("CURR = " + str(curr))
 		# print (currMap)
 		mapDomain = getDomainList(currMap)
-		#print(mapDomain)
+		#print("Length of Domain @ + " + str(curr) + " " + str(len(mapDomain)))
+		#print (mapDomain)
 		laplaceK = 2
 		lSum = 0
 		for x in currMap:
@@ -239,8 +179,8 @@ def compute_statistics(data, label, width, height, feature_extractor, percentage
 			denominator += (laplaceK* valV)
 			
 			#print ("Index: " + str(x) + " | " + str((numerator,denominator)))
-			laplaceImg[curr][x] = np.log(float(numerator)/denominator)
-			lSum += laplaceImg[curr][x]
+			logImg[curr][x] = np.log(float(numerator)/denominator)
+			lSum += logImg[curr][x]
 		
 		#get laplacesum of current number
 		laplaceSum[curr] = lSum + arrIntegerFreq[curr]

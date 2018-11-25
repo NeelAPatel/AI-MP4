@@ -1,2 +1,7 @@
-for x in range(5*2):
-	print x
+def f():
+	global s
+	s = 5
+	return 0
+
+f()
+print(s)
