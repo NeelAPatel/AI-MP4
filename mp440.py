@@ -124,37 +124,37 @@ def compute_statistics(data, label, width, height, feature_extractor, percentage
 		if (label[index] == 0):
 			arrIntegerFreq[0] += 1
 			arrIntegerIndex[0].append(index)
-		elif (index == 1):
+		elif (label[index] == 1):
 			arrIntegerFreq[1] += 1
 			arrIntegerIndex[1].append(index)
-		elif (index == 2):
+		elif (label[index] == 2):
 			arrIntegerFreq[2] += 1
 			arrIntegerIndex[2].append(index)
-		elif (index == 3):
+		elif (label[index] == 3):
 			arrIntegerFreq[3] += 1
 			arrIntegerIndex[3].append(index)
-		elif (index == 4):
+		elif (label[index] == 4):
 			arrIntegerFreq[4] += 1
 			arrIntegerIndex[4].append(index)
-		elif (index == 5):
+		elif (label[index] == 5):
 			arrIntegerFreq[5] += 1
 			arrIntegerIndex[5].append(index)
-		elif (index == 6):
+		elif (label[index] == 6):
 			arrIntegerFreq[6] += 1
 			arrIntegerIndex[6].append(index)
-		elif (index == 7):
+		elif (label[index] == 7):
 			arrIntegerFreq[7] += 1
 			arrIntegerIndex[7].append(index)
-		elif (index == 8):
+		elif (label[index] == 8):
 			arrIntegerFreq[8] += 1
 			arrIntegerIndex[8].append(index)
-		elif (index == 9):
+		elif (label[index] == 9):
 			arrIntegerFreq[9] += 1
 			arrIntegerIndex[9].append(index)
 	
 		index += 1
 	#print arrIntegerFreq
-	#print arrIntegerIndex
+	# print arrIntegerIndex
 	
 	# currIndexArr = arrIntegerIndex[0]
 	# img = extract_basic_features(data[currIndexArr[0]], width, height)
@@ -170,15 +170,22 @@ def compute_statistics(data, label, width, height, feature_extractor, percentage
 
 		currIndexArr = arrIntegerIndex[curr]
 		
-		index = 0
+		#print ("CURR: " + str(curr))
+		#print (str(currIndexArr))
+		
+		count = 1
 		for index in currIndexArr:
-			print (index)
-			img = extract_basic_features(data[index], width,height)
 			
+			img = extract_basic_features(data[index], width,height)
+
 			for x in range(width*height):
 				if (img[x] == 1):
 					imgFreq[curr][x] += 1
-			break
+			
+			
+			if count == 2:
+				break
+			count += 1
 		curr += 1
 	
 	print ()
@@ -196,36 +203,6 @@ def compute_statistics(data, label, width, height, feature_extractor, percentage
 	#
 	# 	- calculate based on frequencies, might need your help on this
 	
-	
-	
-	
-	
-			
-	
-	
-	
-	#
-	# totalNums = len(data)
-	# for index in range(totalNums):
-	# 	currImgNum = feature_extractor(data[index], width, height)
-	# 	currLabel = index
-	#
-	# features =
-	#
-	# print features
-	#
-	# pcentSample = int(round(percentage * len(features)))
-	# # round it
-	print (len(data))
-	print (len(label))
-	# print (len(features))
-	# print (str(pcentSample))
-	
-	# print (data)
-	
-	# test = feature_extractor(data, width, height)
-	
-	# print (test)
 	
 	return 0
 
