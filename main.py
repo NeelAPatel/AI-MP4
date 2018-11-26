@@ -99,7 +99,7 @@ if __name__ == "__main__":
     _print_digit_image(ALL_TRAINING_IMAGES[example_number])
     print 
 
-    # Calling the basic feature extractor 
+    # Calling the basic feature extractor
     # features = mp.extract_basic_features(ALL_TRAINING_IMAGES[example_number],
     #     DATA_WIDTH, DATA_HEIGHT)
 
@@ -107,17 +107,17 @@ if __name__ == "__main__":
     # extractor
     mp.compute_statistics(ALL_TRAINING_IMAGES, ALL_TRAINING_LABELS, DATA_WIDTH,
         DATA_HEIGHT, mp.extract_basic_features)
-    #
-    # # Making predictions on validation data
-    # predicted_labels = mp.classify(ALL_VALIDATION_IMAGES, DATA_WIDTH, DATA_HEIGHT,
-    #     mp.extract_basic_features)
-    #
-    # correct_count = 0.0
-    # for ei in range(len(predicted_labels)):
-    #     if(ALL_VALIDATION_LABELS[ei] == predicted_labels[ei]):
-    #         correct_count += 1
-    #
-    # print "Correct prediction: " + str(correct_count/len(predicted_labels))
+
+    # Making predictions on validation data
+    predicted_labels = mp.classify(ALL_VALIDATION_IMAGES, DATA_WIDTH, DATA_HEIGHT,
+        mp.extract_basic_features)
+
+    correct_count = 0.0
+    for ei in range(len(predicted_labels)):
+        if(ALL_VALIDATION_LABELS[ei] == predicted_labels[ei]):
+            correct_count += 1
+
+    print "Correct prediction: " + str(correct_count/len(predicted_labels))
 
 
     

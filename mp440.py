@@ -97,8 +97,10 @@ def compute_statistics(data, label, width, height, feature_extractor, percentage
 	#arrIntegerFreq = counts how many time each integer appears in the sampleSize
 	#arrIntegerIndex = lists all the indexes that the integer appears on. i.e label[10] is a 0,
 	#                  so 10 would be part of arrIntegerIndex[0]'s list
-	arrIntegerFreq = [0,0,0,0,0,0,0,0,0,0]
-	arrIntegerIndex = [[],[],[],[],[],[],[],[],[],[]]
+	global arrIntegerFreq
+	global arrIntegerIndex
+	arrIntegerFreq = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+	arrIntegerIndex = [[], [], [], [], [], [], [], [], [], []]
 	
 	index = 0
 	while index < sampleSize:
@@ -140,7 +142,8 @@ def compute_statistics(data, label, width, height, feature_extractor, percentage
 	# === CONDITIONAL PROBABILITY ===
 	
 	# Part 1: Count how many times 1 gets flagged for each integer.
-	imgFreq = [[0] * (width*height) for i in range(10)] # 10 elems of width*height size
+	global imgFreq
+	imgFreq= [[0] * (width*height) for i in range(10)] # 10 elems of width*height size
 
 	curr = 0
 	while curr <= 9:
@@ -148,7 +151,7 @@ def compute_statistics(data, label, width, height, feature_extractor, percentage
 		
 		# for every occurance of 'curr' integer, get the image and count the 1s
 		for index in currIndexArr:
-			img = extract_basic_features(data[index], width,height)
+			img = feature_extractor(data[index], width,height)
 			for x in range(width*height):
 				if (img[x] == 1):
 					imgFreq[curr][x] += 1
@@ -156,7 +159,9 @@ def compute_statistics(data, label, width, height, feature_extractor, percentage
 		curr += 1
 	
 	# Part 2 : LAPLACE
+	global logImg
 	logImg = [[0] * (width * height) for i in range(10)]
+	global laplaceSum
 	laplaceSum = [0,0,0,0,0,0,0,0,0,0] #also known as conditional probability
 	curr = 0
 	while curr <= 9:
@@ -166,30 +171,29 @@ def compute_statistics(data, label, width, height, feature_extractor, percentage
 		mapDomain = getDomainList(currMap)
 		#print("Length of Domain @ + " + str(curr) + " " + str(len(mapDomain)))
 		#print (mapDomain)
-		laplaceK = 2
+		laplaceK = 0.1
 		lSum = 0
 		for x in currMap:
-			numerator = x
-			
-			denominator = sampleSize
-			
-			numerator += laplaceK
 			valV = len(mapDomain)
 			
-			denominator += (laplaceK* valV)
+			numerator = x + laplaceK
+			denominator = sampleSize + (laplaceK*valV)
 			
-			#print ("Index: " + str(x) + " | " + str((numerator,denominator)))
+			# #print ("Index: " + str(x) + " | " + str((numerator,denominator)))
 			logImg[curr][x] = np.log(float(numerator)/denominator)
+			
 			lSum += logImg[curr][x]
 		
 		#get laplacesum of current number
-		laplaceSum[curr] = lSum + arrIntegerFreq[curr]
+		#print (lSum)
+		laplaceSum[curr] = lSum + np.log(float(arrIntegerFreq[curr])/sampleSize)
 		curr += 1
 		
-		
-	print ("LAPLACE TOTAL SUM")
-	print (laplaceSum)
-	print ()
+	#outside loop
+	# print ("LAPLACE TOTAL SUM")
+	# print (arrIntegerFreq)
+	# print (laplaceSum)
+	# print ()
 	return 0
 
 
@@ -200,10 +204,41 @@ For the given features for a single digit image, compute the class
 
 def compute_class(features):
 	predicted = -1
+	#print ()
+	#print features
+	occurance = []
+	
+	index = 0
+	while index < len(features):
+		if features[index] == 1:
+			occurance.append(index)
+		index +=1
+	
+	
+	# print (occurance)
+	
+	predLog = []
+	curr = 0
+	while curr <= 9:
+		currLogImg = logImg[curr]
+		# et sum of logImg
+		# save
+		
+		logSum = 0
+		for index in occurance:
+			logSum += currLogImg[index]
+			
+		predLog.append(logSum)
+		#  ("For " + str((curr, logSum)))
+		curr+= 1
+	
+	
+	maxLog = max(predLog)
+	maxIndex = predLog.index(maxLog)
+	predicted = maxIndex
 	
 	# Your code starts here #
 	# Your code ends here #
-	_raise_not_defined()
 	
 	return predicted
 
@@ -217,8 +252,19 @@ of data
 def classify(data, width, height, feature_extractor):
 	predicted = []
 	
-	# Your code starts here #
-	# Your code ends here #
-	_raise_not_defined()
+	# print ("\n\n\nCLASSIFY!!")
+	
+	
+	index = 0
+	while index < len(data):
+		img = feature_extractor(data[index],width,height)
+		prediction = compute_class(img)
+		predicted.append(prediction)
+		
+		index += 1
+	
+	
+	#Your code starts here #
+	#Your code ends here #
 	
 	return predicted
