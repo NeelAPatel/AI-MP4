@@ -171,7 +171,9 @@ def compute_statistics(data, label, width, height, feature_extractor, percentage
 		mapDomain = getDomainList(currMap)
 		#print("Length of Domain @ + " + str(curr) + " " + str(len(mapDomain)))
 		#print (mapDomain)
-		laplaceK = 0.1
+		
+		# LAPLACE K VALUE
+		laplaceK = 500
 		lSum = 0
 		for x in currMap:
 			valV = len(mapDomain)
@@ -194,6 +196,7 @@ def compute_statistics(data, label, width, height, feature_extractor, percentage
 	# print (arrIntegerFreq)
 	# print (laplaceSum)
 	# print ()
+	
 	return 0
 
 
@@ -217,24 +220,44 @@ def compute_class(features):
 	
 	# print (occurance)
 	
-	predLog = []
+	predLogSum = []
 	curr = 0
 	while curr <= 9:
 		currLogImg = logImg[curr]
 		# et sum of logImg
 		# save
-		
-		logSum = 0
+		predTotalLog = []
 		for index in occurance:
-			logSum += currLogImg[index]
+			predTotalLog.append(currLogImg[index])
 			
-		predLog.append(logSum)
-		#  ("For " + str((curr, logSum)))
+		#all overlapping logs found.
+	
+		#Get Top 100?
+		#sort
+		predTotalLog.sort(reverse=True)
+		#print (predTotalLog)
+		#get top 100
+		
+		index = 0
+		logSum = 0
+		while index <= 99 and index < len(predTotalLog):
+		#while index < len(predTotalLog):
+			if (predTotalLog >= 0):
+				logSum += predTotalLog[index]
+			index += 1
+		
+		predLogSum.append(logSum)
+		
+		
+		#print ("For " + str((curr, logSum)))
+		#print (predTotalLog)
+		
 		curr+= 1
+		
 	
+	maxLog = max(predLogSum)
+	maxIndex = predLogSum.index(maxLog)
 	
-	maxLog = max(predLog)
-	maxIndex = predLog.index(maxLog)
 	predicted = maxIndex
 	
 	# Your code starts here #
@@ -260,7 +283,7 @@ def classify(data, width, height, feature_extractor):
 		img = feature_extractor(data[index],width,height)
 		prediction = compute_class(img)
 		predicted.append(prediction)
-		
+		#break
 		index += 1
 	
 	
