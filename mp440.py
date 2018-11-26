@@ -101,7 +101,11 @@ def compute_statistics(data, label, width, height, feature_extractor, percentage
 	global arrIntegerIndex
 	arrIntegerFreq = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 	arrIntegerIndex = [[], [], [], [], [], [], [], [], [], []]
+	# LAPLACE K VALUE
+	# laplaceK =0.00000000000000000000000000000001 # 0.716
+	# laplaceK = 0.00000000000001  # minimum amt of 0s for 71.6%
 	
+	laplaceK = 40
 	index = 0
 	while index < sampleSize:
 		if label[index] == 0:
@@ -172,9 +176,7 @@ def compute_statistics(data, label, width, height, feature_extractor, percentage
 	
 		mapDomain = getDomainList(currMap)
 		
-		# LAPLACE K VALUE
-		#laplaceK =0.00000000000000000000000000000001 # 0.716
-		laplaceK = 0.00000000000001 # minimum amt of 0s for 71.6%
+		
 		lSum = 0
 		
 		condProb = 0
@@ -237,7 +239,11 @@ def compute_class(features):
 		for x in occurance:
 			logSum += logImg[curr][x]
 		maxPred = max(maxPred, logSum)
-		predicted = curr if maxPred == logSum else predicted
+		if (maxPred == logSum):
+			predicted = curr
+		else:
+			predicted = predicted
+		
 		curr+= 1
 	
 	
