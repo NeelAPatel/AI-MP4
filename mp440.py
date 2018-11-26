@@ -160,41 +160,56 @@ def compute_statistics(data, label, width, height, feature_extractor, percentage
 	
 	# Part 2 : LAPLACE
 	global logImg
-	logImg = [[0] * (width * height) for i in range(10)]
+	#logImg = [[0] * (width * height) for i in range(10)]
+	logImg = []
 	global laplaceSum
-	laplaceSum = [0,0,0,0,0,0,0,0,0,0] #also known as conditional probability
+	laplaceSum = [0,0,0,0,0,0,0,0,0,0]
+	
+	
 	curr = 0
 	while curr <= 9:
 		currMap = imgFreq[curr]
-		#print ("CURR = " + str(curr))
-		# print (currMap)
+	
 		mapDomain = getDomainList(currMap)
-		#print("Length of Domain @ + " + str(curr) + " " + str(len(mapDomain)))
-		#print (mapDomain)
 		
 		# LAPLACE K VALUE
-		laplaceK = 500
+		#laplaceK =0.00000000000000000000000000000001 # 0.716
+		laplaceK = 0.00000000000001 # minimum amt of 0s for 71.6%
 		lSum = 0
-		for x in currMap:
-			valV = len(mapDomain)
-			
-			numerator = x + laplaceK
-			denominator = sampleSize + (laplaceK*valV)
-			
-			# #print ("Index: " + str(x) + " | " + str((numerator,denominator)))
-			logImg[curr][x] = np.log(float(numerator)/denominator)
-			
-			lSum += logImg[curr][x]
 		
-		#get laplacesum of current number
-		#print (lSum)
-		laplaceSum[curr] = lSum + np.log(float(arrIntegerFreq[curr])/sampleSize)
+		condProb = 0
+		finalProb = 0
+		currProbabilities = []
+		#print ("CURR: " + str(curr))
+		for j in range(0, len(currMap)):
+			numerator = currMap[j]
+			numerator += laplaceK
+			
+			denominator = sampleSize
+			denominator += (len(mapDomain) * laplaceK)
+			
+			
+			prob = np.log(float(numerator)/denominator)
+			#print ("J:" + str(j) + " " + str( (numerator, denominator, prob) ))
+			
+			currProbabilities.append(prob)
+			condProb += prob
+		
+		#print ("Prior Prob: " + str((arrIntegerFreq[curr], sampleSize,float(arrIntegerFreq[curr])/sampleSize )))
+		priorProb = np.log(float(arrIntegerFreq[curr])/sampleSize)
+		finalProb = condProb + priorProb
+		
+		logImg.append(currProbabilities)
+		laplaceSum[curr] = finalProb
+		#print mapDomain
+		#print currMap
 		curr += 1
 		
 	#outside loop
 	# print ("LAPLACE TOTAL SUM")
-	# print (arrIntegerFreq)
-	# print (laplaceSum)
+	#print (arrIntegerFreq)
+	#print (laplaceSum)
+	# print (logImg[0])
 	# print ()
 	
 	return 0
@@ -204,64 +219,27 @@ def compute_statistics(data, label, width, height, feature_extractor, percentage
 For the given features for a single digit image, compute the class 
 '''
 
-
 def compute_class(features):
+
 	predicted = -1
 	#print ()
 	#print features
+
 	occurance = []
-	
-	index = 0
-	while index < len(features):
-		if features[index] == 1:
-			occurance.append(index)
-		index +=1
-	
-	
-	# print (occurance)
-	
-	predLogSum = []
+	for i in range(0, len(features)):
+		if features[i] == 1:
+			occurance.append(i)
+
+	maxPred = -(sys.maxint - 1)
 	curr = 0
 	while curr <= 9:
-		currLogImg = logImg[curr]
-		# et sum of logImg
-		# save
-		predTotalLog = []
-		for index in occurance:
-			predTotalLog.append(currLogImg[index])
-			
-		#all overlapping logs found.
-	
-		#Get Top 100?
-		#sort
-		predTotalLog.sort(reverse=True)
-		#print (predTotalLog)
-		#get top 100
-		
-		index = 0
 		logSum = 0
-		while index <= 99 and index < len(predTotalLog):
-		#while index < len(predTotalLog):
-			if (predTotalLog >= 0):
-				logSum += predTotalLog[index]
-			index += 1
-		
-		predLogSum.append(logSum)
-		
-		
-		#print ("For " + str((curr, logSum)))
-		#print (predTotalLog)
-		
+		for x in occurance:
+			logSum += logImg[curr][x]
+		maxPred = max(maxPred, logSum)
+		predicted = curr if maxPred == logSum else predicted
 		curr+= 1
-		
 	
-	maxLog = max(predLogSum)
-	maxIndex = predLogSum.index(maxLog)
-	
-	predicted = maxIndex
-	
-	# Your code starts here #
-	# Your code ends here #
 	
 	return predicted
 
@@ -274,9 +252,6 @@ of data
 
 def classify(data, width, height, feature_extractor):
 	predicted = []
-	
-	# print ("\n\n\nCLASSIFY!!")
-	
 	
 	index = 0
 	while index < len(data):
