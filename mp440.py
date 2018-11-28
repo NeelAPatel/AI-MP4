@@ -1,5 +1,5 @@
 '''
-Raise a "not defined" exception as a reminder 
+Raise a "not defined" exception as a reminder
 '''
 # import util
 import sys
@@ -21,7 +21,7 @@ def _print_array_state(state):
 
 '''
 Extract 'basic' features, i.e., whether a pixel is background or
-forground (part of the digit) 
+forground (part of the digit)
 '''
 
 
@@ -43,15 +43,90 @@ def extract_basic_features(digit_data, width, height):
 
 
 '''
-Extract advanced features that you will come up with 
+Extract advanced features that you will come up with
 '''
 
+def removeDots(currRow):
+	index = 0;
+	while index < len(currRow)-1:
+		
+		if (index > 0):
+			prevVal = currRow[index-1]
+			nextVal = currRow[index+1]
+			
+			if (prevVal != 0 and nextVal != 0 and currRow[index] == 0):
+				currRow[index] = int((prevVal + nextVal) /2)
+			
+		
+		index += 1
+	return currRow
 
 def extract_advanced_features(digit_data, width, height):
 	features = []
 	# Your code starts here #
+	
+	
+	# print (len(digit_data))
+	
+	for r in range(width):
+		for c in range(height):
+			line = []
+			
+			
+			if (r > 0 and r < width-1 and c > 0 and c < height - 1 ):
+				if digit_data[r - 1][c - 1] != 0:
+					line.append(1)
+				if digit_data[r - 1][c] != 0:
+					line.append(1)
+				if digit_data[r - 1][c + 1] != 0:
+					line.append(1)
+				if digit_data[r][c - 1] != 0:
+					line.append(1)
+				if digit_data[r][c + 1] != 0:
+					line.append(1)
+				if digit_data[r + 1][c - 1] != 0:
+					line.append(1)
+				if digit_data[r + 1][c] != 0:
+					line.append(1)
+				if digit_data[r + 1][c + 1] != 0:
+					line.append(1)
+					
+			if (len(line) < 2):
+				digit_data[r][c] = 0
+				
+	
+	for row in range(width):
+		currRow = digit_data[row]
+		digit_data[row] = removeDots(currRow)
+		
+		# remove singular random 0s
+		index = 0;
+		while index < len(currRow) - 1:
+			
+			if (index > 0):
+				prevVal = currRow[index - 1]
+				nextVal = currRow[index + 1]
+				
+				if (prevVal != 0 and nextVal != 0 and currRow[index] == 0):
+					currRow[index] = int((prevVal + nextVal) / 2)
+			
+			index += 1
+		
+		#extraneous values at edge
+		digit_data[row][0] = 0
+		digit_data[row][width -1] = 0
+		
+		
+		# adding to features
+		for col in range(height):
+			#print ("Val: " + str(digit_data[x][y]))
+			if (digit_data[row][col] > 0):
+				features.append(1)
+			else:
+				features.append(0)
+	
+	# _print_array_state(digit_data)
 	# Your code ends here #
-	_raise_not_defined()
 	return features
 
 
@@ -77,7 +152,7 @@ defined above is a function than be passed in as a feature_extractor
 implementation.
 
 The percentage parameter controls what percentage of the example data
-should be used for training. 
+should be used for training.
 '''
 def getDomainList(mapList):
 	uniqueList = []
@@ -87,173 +162,135 @@ def getDomainList(mapList):
 	
 	return uniqueList
 
-def compute_statistics(data, label, width, height, feature_extractor, percentage=1):
-	# Your code starts here #
-	sampleSize = int(float(percentage)*len(label))
+
+def compute_statistics(data, label, width, height, feature_extractor, percentage=100.0):
+	sampleSize = int(float(percentage / 100) * len(label))
 	
 	
 	
-	# === PRIOR PROBABILITY ===
-	#arrIntegerFreq = counts how many time each integer appears in the sampleSize
-	#arrIntegerIndex = lists all the indexes that the integer appears on. i.e label[10] is a 0,
-	#                  so 10 would be part of arrIntegerIndex[0]'s list
-	global arrIntegerFreq
-	global arrIntegerIndex
-	arrIntegerFreq = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-	arrIntegerIndex = [[], [], [], [], [], [], [], [], [], []]
-	# LAPLACE K VALUE
-	# laplaceK =0.00000000000000000000000000000001 # 0.716
-	# laplaceK = 0.00000000000001  # minimum amt of 0s for 71.6%
+	# Get Statistics
+	global labelFreq # Counts how many times a specific label occurs
+	global labelFreqIndex
+	labelFreq = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+	labelFreqIndex = [[], [], [], [], [], [], [], [], [], []]
 	
-	laplaceK = 40
-	index = 0
-	while index < sampleSize:
+	for index in range(sampleSize):
 		if label[index] == 0:
-			arrIntegerFreq[0] += 1
-			arrIntegerIndex[0].append(index)
+			labelFreq[0] += 1
+			labelFreqIndex[0].append(index)
 		elif label[index] == 1:
-			arrIntegerFreq[1] += 1
-			arrIntegerIndex[1].append(index)
+			labelFreq[1] += 1
+			labelFreqIndex[1].append(index)
 		elif label[index] == 2:
-			arrIntegerFreq[2] += 1
-			arrIntegerIndex[2].append(index)
+			labelFreq[2] += 1
+			labelFreqIndex[2].append(index)
 		elif label[index] == 3:
-			arrIntegerFreq[3] += 1
-			arrIntegerIndex[3].append(index)
+			labelFreq[3] += 1
+			labelFreqIndex[3].append(index)
 		elif label[index] == 4:
-			arrIntegerFreq[4] += 1
-			arrIntegerIndex[4].append(index)
+			labelFreq[4] += 1
+			labelFreqIndex[4].append(index)
 		elif label[index] == 5:
-			arrIntegerFreq[5] += 1
-			arrIntegerIndex[5].append(index)
+			labelFreq[5] += 1
+			labelFreqIndex[5].append(index)
 		elif label[index] == 6:
-			arrIntegerFreq[6] += 1
-			arrIntegerIndex[6].append(index)
+			labelFreq[6] += 1
+			labelFreqIndex[6].append(index)
 		elif label[index] == 7:
-			arrIntegerFreq[7] += 1
-			arrIntegerIndex[7].append(index)
+			labelFreq[7] += 1
+			labelFreqIndex[7].append(index)
 		elif label[index] == 8:
-			arrIntegerFreq[8] += 1
-			arrIntegerIndex[8].append(index)
+			labelFreq[8] += 1
+			labelFreqIndex[8].append(index)
 		elif label[index] == 9:
-			arrIntegerFreq[9] += 1
-			arrIntegerIndex[9].append(index)
+			labelFreq[9] += 1
+			labelFreqIndex[9].append(index)
 	
-		index += 1
 	
-	#print ("> Prior Probability Complete")
+	# === PRIOR PROBABILITY P(Y) = c(y) / n
+	global priorProb
+	priorProb = []
+	for i in range(0, 10):
+		prior = np.log(float(labelFreq[i]) / sampleSize)
+		priorProb.append(prior)
 	
-	# === CONDITIONAL PROBABILITY ===
+	# === CONDITIONAL PROBAILITY
+	laplaceK = 0.00001
+	global condTrue, condFalse, freqMapTrue, freqMapFalse
+	condTrue = [[[0 for c in range(width)] for r in range(height)] for l in range(10)]
+	condFalse = [[[0 for c in range(width)] for r in range(height)] for l in range(10)]
 	
-	# Part 1: Count how many times 1 gets flagged for each integer.
-	global imgFreq
-	imgFreq= [[0] * (width*height) for i in range(10)] # 10 elems of width*height size
+	freqMapTrue = [[[0 for c in range(width)] for r in range(height)] for l in range(10)]
+	freqMapFalse = [[[0 for c in range(width)] for r in range(height)] for l in range(10)]
+	
+	# Frequency map
+	
+	for imgIndex in range(0, sampleSize):
+		img = feature_extractor(data[imgIndex], width, height)
+		corresLabel = label[imgIndex]
+		currTrueMap = freqMapTrue[corresLabel]
+		currFalseMap = freqMapFalse[corresLabel]
+		
+		xIndex = 0
+		for row in range(0,height):
+			for col in range(0,width):
+				if (img[xIndex] == True):
+					currTrueMap[row][col] += 1
+				else:
+					currFalseMap[row][col] += 1
+				xIndex+= 1
+	# Conditional Calculation
+	
+	for lIndex in range(0, 10):
+		currCondTrue = condTrue[lIndex]
+		currCondFalse = condFalse[lIndex]
+		for r in range(height):
+			for c in range(width):
+				numTrue = float(freqMapTrue[lIndex][r][c] + laplaceK)
+				numFalse = float(freqMapFalse[lIndex][r][c] + laplaceK)
+				domain = 2
+				denom = float(labelFreq[lIndex] + domain * laplaceK)
+				
+				currCondTrue[r][c] = np.log(numTrue/denom)
+				#print currCondTrue[r][c]
+				currCondFalse[r][c] = np.log(numFalse / denom)
 
-	curr = 0
-	while curr <= 9:
-		currIndexArr = arrIntegerIndex[curr]
-		
-		# for every occurance of 'curr' integer, get the image and count the 1s
-		for index in currIndexArr:
-			img = feature_extractor(data[index], width,height)
-			for x in range(width*height):
-				if (img[x] == 1):
-					imgFreq[curr][x] += 1
-			
-		curr += 1
-	
-	# Part 2 : LAPLACE
-	global logImg
-	#logImg = [[0] * (width * height) for i in range(10)]
-	logImg = []
-	global laplaceSum
-	laplaceSum = [0,0,0,0,0,0,0,0,0,0]
-	
-	
-	curr = 0
-	while curr <= 9:
-		currMap = imgFreq[curr]
-	
-		mapDomain = getDomainList(currMap)
-		
-		
-		lSum = 0
-		
-		condProb = 0
-		finalProb = 0
-		currProbabilities = []
-		#print ("CURR: " + str(curr))
-		for j in range(0, len(currMap)):
-			numerator = currMap[j]
-			numerator += laplaceK
-			
-			denominator = sampleSize
-			denominator += (len(mapDomain) * laplaceK)
-			
-			
-			prob = np.log(float(numerator)/denominator)
-			#print ("J:" + str(j) + " " + str( (numerator, denominator, prob) ))
-			
-			currProbabilities.append(prob)
-			condProb += prob
-		
-		#print ("Prior Prob: " + str((arrIntegerFreq[curr], sampleSize,float(arrIntegerFreq[curr])/sampleSize )))
-		priorProb = np.log(float(arrIntegerFreq[curr])/sampleSize)
-		finalProb = condProb + priorProb
-		
-		logImg.append(currProbabilities)
-		laplaceSum[curr] = finalProb
-		#print mapDomain
-		#print currMap
-		curr += 1
-		
-	#outside loop
-	# print ("LAPLACE TOTAL SUM")
-	#print (arrIntegerFreq)
-	#print (laplaceSum)
-	# print (logImg[0])
-	# print ()
-	
-	return 0
+
 
 
 '''
-For the given features for a single digit image, compute the class 
+For the given features for a single digit image, compute the class
 '''
+
 
 def compute_class(features):
-
 	predicted = -1
-	#print ()
-	#print features
-
-	occurance = []
-	for i in range(0, len(features)):
-		if features[i] == 1:
-			occurance.append(i)
-
-	maxPred = -(sys.maxint - 1)
-	curr = 0
-	while curr <= 9:
-		logSum = 0
-		for x in occurance:
-			logSum += logImg[curr][x]
-		maxPred = max(maxPred, logSum)
-		if (maxPred == logSum):
-			predicted = curr
-		else:
-			predicted = predicted
-		
-		curr+= 1
+	
+	# Your code starts here
+	# You should remove _raise_not_defined() after you complete your code
+	# Log of prior probabilites summed with conditional probabilities where pixel = true
+	sums = list(priorProb)
+	
+	#sum up priors and conditional
+	for label in range(0, len(condTrue)):
+		xIndex = 0
+		for row in range(0, len(condTrue[0][0])):
+			for col in range(0, len(condTrue[0][0])):
+				if features[xIndex] == 1:
+					sums[label] += condTrue[label][row][col]
+				else:
+					sums[label] += condFalse[label][row][col]
+				xIndex += 1
 	
 	
+	#check for best value
+	max = float("-inf")
+	for i in range(0, len(sums)):
+		if (sums[i] > max):
+			max = sums[i]
+			predicted = i
+	# Your code ends here
 	return predicted
-
-
-'''
-Compute joint probaility for all the classes and make predictions for a list
-of data
-'''
 
 
 def classify(data, width, height, feature_extractor):
@@ -267,8 +304,5 @@ def classify(data, width, height, feature_extractor):
 		#break
 		index += 1
 	
-	
-	#Your code starts here #
-	#Your code ends here #
 	
 	return predicted
