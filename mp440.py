@@ -87,20 +87,10 @@ def extract_advanced_features(digit_data, width, height):
 	
 	for row in range(width):
 		currRow = digit_data[row]
-		digit_data[row] = removeDots(currRow)
 		
+
 		# remove singular random 0s
-		index = 0;
-		while index < len(currRow) - 1:
-			
-			if (index > 0):
-				prevVal = currRow[index - 1]
-				nextVal = currRow[index + 1]
-				
-				if prevVal != 0 and nextVal != 0 and currRow[index] == 0:
-					currRow[index] = int((prevVal + nextVal) / 2)
-			
-			index += 1
+		digit_data[row] = removeDots(currRow)
 		
 		# extraneous values at edge
 		digit_data[row][0] = 0
@@ -121,10 +111,20 @@ def extract_advanced_features(digit_data, width, height):
 Extract the final features that you would like to use
 '''
 def extract_final_features(digit_data, width, height):
-	features = []
+	
 	#Assuming this method means choose which of the two extract methods to use
-	features = extract_basic_features(digit_data, width, height)
-	return features
+	featuresBasic = extract_basic_features(digit_data, width, height)
+	featuresAdvanced = extract_advanced_features(digit_data, width, height)
+	featuresFinal = []
+	
+	
+	for index in range(width*height):
+		basVal = featuresBasic[index]
+		advVal = featuresAdvanced[index]
+		finalVal = (float(basVal) + float(advVal)) / 2
+		featuresFinal.append(finalVal)
+		
+	return featuresFinal
 
 
 '''
@@ -138,7 +138,7 @@ implementation.
 The percentage parameter controls what percentage of the example data
 should be used for training.
 '''
-def compute_statistics(data, label, width, height, feature_extractor, percentage=100.0):
+def compute_statistics(data, label, width, height, feature_extractor, percentage= 100.0):
 	sampleSize = int(float(percentage / 100) * len(label))
 	
 	# === Get Statistics
@@ -203,7 +203,7 @@ def compute_statistics(data, label, width, height, feature_extractor, percentage
 		xIndex = 0
 		for row in range(0, height):
 			for col in range(0, width):
-				if (img[xIndex] == True):
+				if (img[xIndex] > 0):
 					currTrueMap[row][col] += 1
 				else:
 					currFalseMap[row][col] += 1
@@ -213,6 +213,7 @@ def compute_statistics(data, label, width, height, feature_extractor, percentage
 	global condTrue, condFalse
 	condTrue = [[[0 for c in range(width)] for r in range(height)] for l in range(10)]
 	condFalse = [[[0 for c in range(width)] for r in range(height)] for l in range(10)]
+	
 	laplaceK = 0.00001 # 0.00001 gives 0.825 basic and 0.82 advanced
 	
 	# Conditional Calculation
@@ -253,7 +254,7 @@ def compute_class(features):
 	# check for best value
 	maxPred = float("-inf")
 	for i in range(0, len(logSums)):
-		if logSums[i] > max:
+		if logSums[i] > maxPred:
 			maxPred = logSums[i]
 			predicted = i
 			
