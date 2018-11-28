@@ -23,57 +23,47 @@ def _print_array_state(state):
 Extract 'basic' features, i.e., whether a pixel is background or
 forground (part of the digit)
 '''
-
-
 def extract_basic_features(digit_data, width, height):
 	features = []
-	
-	# _print_array_state(digit_data)
-	#print (digit_data)
-	
+	# converts into a 1D array of 0s and 1s
 	for x in range(width):
 		for y in range(height):
-			#print ("Val: " + str(digit_data[x][y]))
-			if (digit_data[x][y] > 0):
+			if digit_data[x][y] > 0:
 				features.append(1)
 			else:
 				features.append(0)
-
+	
 	return features
 
 
 '''
 Extract advanced features that you will come up with
 '''
-
 def removeDots(currRow):
-	index = 0;
-	while index < len(currRow)-1:
+	# If the left and right side are both non-zeros and the current value is a 0,
+	# change sandwiched value to zero
+	index = 0
+	while index < len(currRow) - 1:
 		
-		if (index > 0):
-			prevVal = currRow[index-1]
-			nextVal = currRow[index+1]
+		if index > 0:
+			prevVal = currRow[index - 1]
+			nextVal = currRow[index + 1]
 			
-			if (prevVal != 0 and nextVal != 0 and currRow[index] == 0):
-				currRow[index] = int((prevVal + nextVal) /2)
-			
+			if prevVal != 0 and nextVal != 0 and currRow[index] == 0:
+				currRow[index] = int((prevVal + nextVal) / 2)
 		
 		index += 1
 	return currRow
 
+
 def extract_advanced_features(digit_data, width, height):
 	features = []
-	# Your code starts here #
 	
-	
-	# print (len(digit_data))
-	
+	# Check all 8 spots around current position, if there is only 1 nonzero, remove current pixel
 	for r in range(width):
 		for c in range(height):
 			line = []
-			
-			
-			if (r > 0 and r < width-1 and c > 0 and c < height - 1 ):
+			if (r > 0 and r < width - 1 and c > 0 and c < height - 1):
 				if digit_data[r - 1][c - 1] != 0:
 					line.append(1)
 				if digit_data[r - 1][c] != 0:
@@ -90,10 +80,10 @@ def extract_advanced_features(digit_data, width, height):
 					line.append(1)
 				if digit_data[r + 1][c + 1] != 0:
 					line.append(1)
-					
+			
 			if (len(line) < 2):
 				digit_data[r][c] = 0
-				
+	
 	
 	for row in range(width):
 		currRow = digit_data[row]
@@ -107,39 +97,33 @@ def extract_advanced_features(digit_data, width, height):
 				prevVal = currRow[index - 1]
 				nextVal = currRow[index + 1]
 				
-				if (prevVal != 0 and nextVal != 0 and currRow[index] == 0):
+				if prevVal != 0 and nextVal != 0 and currRow[index] == 0:
 					currRow[index] = int((prevVal + nextVal) / 2)
 			
 			index += 1
 		
-		#extraneous values at edge
+		# extraneous values at edge
 		digit_data[row][0] = 0
-		digit_data[row][width -1] = 0
-		
+		digit_data[row][width - 1] = 0
 		
 		# adding to features
 		for col in range(height):
-			#print ("Val: " + str(digit_data[x][y]))
+			# print ("Val: " + str(digit_data[x][y]))
 			if (digit_data[row][col] > 0):
 				features.append(1)
 			else:
 				features.append(0)
 	
-	# _print_array_state(digit_data)
-	# Your code ends here #
 	return features
 
 
 '''
 Extract the final features that you would like to use
 '''
-
-
 def extract_final_features(digit_data, width, height):
 	features = []
-	# Your code starts here #
-	# Your code ends here #
-	_raise_not_defined()
+	#Assuming this method means choose which of the two extract methods to use
+	features = extract_basic_features(digit_data, width, height)
 	return features
 
 
@@ -154,22 +138,11 @@ implementation.
 The percentage parameter controls what percentage of the example data
 should be used for training.
 '''
-def getDomainList(mapList):
-	uniqueList = []
-	for x in mapList:
-		if x not in uniqueList:
-			uniqueList.append(x)
-	
-	return uniqueList
-
-
 def compute_statistics(data, label, width, height, feature_extractor, percentage=100.0):
 	sampleSize = int(float(percentage / 100) * len(label))
 	
-	
-	
-	# Get Statistics
-	global labelFreq # Counts how many times a specific label occurs
+	# === Get Statistics
+	global labelFreq  # Counts how many times a specific label occurs
 	global labelFreqIndex
 	labelFreq = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 	labelFreqIndex = [[], [], [], [], [], [], [], [], [], []]
@@ -206,7 +179,6 @@ def compute_statistics(data, label, width, height, feature_extractor, percentage
 			labelFreq[9] += 1
 			labelFreqIndex[9].append(index)
 	
-	
 	# === PRIOR PROBABILITY P(Y) = c(y) / n
 	global priorProb
 	priorProb = []
@@ -215,16 +187,13 @@ def compute_statistics(data, label, width, height, feature_extractor, percentage
 		priorProb.append(prior)
 	
 	# === CONDITIONAL PROBAILITY
-	laplaceK = 0.00001
-	global condTrue, condFalse, freqMapTrue, freqMapFalse
-	condTrue = [[[0 for c in range(width)] for r in range(height)] for l in range(10)]
-	condFalse = [[[0 for c in range(width)] for r in range(height)] for l in range(10)]
+	
+	global freqMapTrue, freqMapFalse
 	
 	freqMapTrue = [[[0 for c in range(width)] for r in range(height)] for l in range(10)]
 	freqMapFalse = [[[0 for c in range(width)] for r in range(height)] for l in range(10)]
 	
-	# Frequency map
-	
+	# Frequency map for true and false
 	for imgIndex in range(0, sampleSize):
 		img = feature_extractor(data[imgIndex], width, height)
 		corresLabel = label[imgIndex]
@@ -232,15 +201,21 @@ def compute_statistics(data, label, width, height, feature_extractor, percentage
 		currFalseMap = freqMapFalse[corresLabel]
 		
 		xIndex = 0
-		for row in range(0,height):
-			for col in range(0,width):
+		for row in range(0, height):
+			for col in range(0, width):
 				if (img[xIndex] == True):
 					currTrueMap[row][col] += 1
 				else:
 					currFalseMap[row][col] += 1
-				xIndex+= 1
-	# Conditional Calculation
+				xIndex += 1
 	
+	
+	global condTrue, condFalse
+	condTrue = [[[0 for c in range(width)] for r in range(height)] for l in range(10)]
+	condFalse = [[[0 for c in range(width)] for r in range(height)] for l in range(10)]
+	laplaceK = 0.00001 # 0.00001 gives 0.825 basic and 0.82 advanced
+	
+	# Conditional Calculation
 	for lIndex in range(0, 10):
 		currCondTrue = condTrue[lIndex]
 		currCondFalse = condFalse[lIndex]
@@ -248,48 +223,40 @@ def compute_statistics(data, label, width, height, feature_extractor, percentage
 			for c in range(width):
 				numTrue = float(freqMapTrue[lIndex][r][c] + laplaceK)
 				numFalse = float(freqMapFalse[lIndex][r][c] + laplaceK)
-				domain = 2
+				domain = 2 # 0 and 1
 				denom = float(labelFreq[lIndex] + domain * laplaceK)
 				
-				currCondTrue[r][c] = np.log(numTrue/denom)
-				#print currCondTrue[r][c]
+				currCondTrue[r][c] = np.log(numTrue / denom)
 				currCondFalse[r][c] = np.log(numFalse / denom)
-
-
 
 
 '''
 For the given features for a single digit image, compute the class
 '''
-
-
 def compute_class(features):
 	predicted = -1
 	
-	# Your code starts here
-	# You should remove _raise_not_defined() after you complete your code
-	# Log of prior probabilites summed with conditional probabilities where pixel = true
-	sums = list(priorProb)
+	# Log of prior probabilities summed with conditional probabilities where pixel = true
+	logSums = list(priorProb)
 	
-	#sum up priors and conditional
+	# sum up priors and conditional
 	for label in range(0, len(condTrue)):
 		xIndex = 0
 		for row in range(0, len(condTrue[0][0])):
 			for col in range(0, len(condTrue[0][0])):
 				if features[xIndex] == 1:
-					sums[label] += condTrue[label][row][col]
+					logSums[label] += condTrue[label][row][col]
 				else:
-					sums[label] += condFalse[label][row][col]
+					logSums[label] += condFalse[label][row][col]
 				xIndex += 1
 	
-	
-	#check for best value
-	max = float("-inf")
-	for i in range(0, len(sums)):
-		if (sums[i] > max):
-			max = sums[i]
+	# check for best value
+	maxPred = float("-inf")
+	for i in range(0, len(logSums)):
+		if logSums[i] > max:
+			maxPred = logSums[i]
 			predicted = i
-	# Your code ends here
+			
 	return predicted
 
 
@@ -298,11 +265,10 @@ def classify(data, width, height, feature_extractor):
 	
 	index = 0
 	while index < len(data):
-		img = feature_extractor(data[index],width,height)
+		img = feature_extractor(data[index], width, height)
 		prediction = compute_class(img)
 		predicted.append(prediction)
-		#break
+		# break
 		index += 1
-	
 	
 	return predicted
