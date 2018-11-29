@@ -56,9 +56,10 @@ def removeDots(currRow):
 	return currRow
 
 
-def extract_advanced_features(digit_data, width, height):
-	features = []
-	
+
+def featuresV1(digit_data, width, height):
+	# Noise clean up
+
 	# Check all 8 spots around current position, if there is only 1 nonzero, remove current pixel
 	for r in range(width):
 		for c in range(height):
@@ -80,30 +81,58 @@ def extract_advanced_features(digit_data, width, height):
 					line.append(1)
 				if digit_data[r + 1][c + 1] != 0:
 					line.append(1)
-			
+
 			if (len(line) < 2):
 				digit_data[r][c] = 0
-	
-	
+
 	for row in range(width):
 		currRow = digit_data[row]
-		
 
 		# remove singular random 0s
 		digit_data[row] = removeDots(currRow)
-		
+
 		# extraneous values at edge
 		digit_data[row][0] = 0
 		digit_data[row][width - 1] = 0
-		
-		# adding to features
-		for col in range(height):
-			# print ("Val: " + str(digit_data[x][y]))
-			if (digit_data[row][col] > 0):
+
+	return digit_data
+
+def featuresV2(digit_data, width, height):
+	# only 1s, exceptions made if theres a line of just 2s
+
+	for x in range(width):
+		for y in range(height):
+			# if (digit_data[x][y] == 2) and (not 1 in digit_data[x]):
+			# 	digit_data[x][y] = 1
+			# elif (digit_data[x][y] == 1):
+			# 	digit_data[x][y] = 1
+			# else:
+			# 	digit_data[x][y] = 0
+
+
+			if (digit_data[x][y] == 1):
+				digit_data[x][y] = 1
+			else:
+				digit_data[x][y] = 0
+
+	return digit_data
+
+def extract_advanced_features(digit_data, width, height):
+
+	# Feature v1: clean up noise
+	features = []
+
+	#digit_data = featuresV1(digit_data, width, height)  # 80.6 alone
+	digit_data = featuresV2(digit_data, width, height)  # 80.7 alone
+
+	# V1 + V2 = 80.0 %
+	for x in range(width):
+		for y in range(height):
+			if digit_data[x][y] == 1:
 				features.append(1)
 			else:
 				features.append(0)
-	
+
 	return features
 
 
