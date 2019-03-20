@@ -55,80 +55,106 @@ def removeDots(currRow):
 		index += 1
 	return currRow
 
-
-
-def featuresV1(digit_data, width, height):
+def deepcopy(digit_data, width, height):
+	newDigit = [[0 for c in range(width)] for r in range(height)]
+	for r in range(width):
+		for c in range(height):
+			newDigit[r][c] = digit_data[r][c]
+	
+	return newDigit
+	
+def featuresV1(newDigit, width, height):
 	# Noise clean up
 
 	# Check all 8 spots around current position, if there is only 1 nonzero, remove current pixel
+	
+	
 	for r in range(width):
 		for c in range(height):
 			line = []
 			if (r > 0 and r < width - 1 and c > 0 and c < height - 1):
-				if digit_data[r - 1][c - 1] != 0:
+				if newDigit[r - 1][c - 1] != 0:
 					line.append(1)
-				if digit_data[r - 1][c] != 0:
+				if newDigit[r - 1][c] != 0:
 					line.append(1)
-				if digit_data[r - 1][c + 1] != 0:
+				if newDigit[r - 1][c + 1] != 0:
 					line.append(1)
-				if digit_data[r][c - 1] != 0:
+				if newDigit[r][c - 1] != 0:
 					line.append(1)
-				if digit_data[r][c + 1] != 0:
+				if newDigit[r][c + 1] != 0:
 					line.append(1)
-				if digit_data[r + 1][c - 1] != 0:
+				if newDigit[r + 1][c - 1] != 0:
 					line.append(1)
-				if digit_data[r + 1][c] != 0:
+				if newDigit[r + 1][c] != 0:
 					line.append(1)
-				if digit_data[r + 1][c + 1] != 0:
+				if newDigit[r + 1][c + 1] != 0:
 					line.append(1)
 
 			if (len(line) < 2):
-				digit_data[r][c] = 0
+				newDigit[r][c] = 0
 
 	for row in range(width):
-		currRow = digit_data[row]
+		currRow = newDigit[row]
 
 		# remove singular random 0s
-		digit_data[row] = removeDots(currRow)
+		newDigit[row] = removeDots(currRow)
 
 		# extraneous values at edge
-		digit_data[row][0] = 0
-		digit_data[row][width - 1] = 0
+		newDigit[row][0] = 0
+		newDigit[row][width - 1] = 0
 
-	return digit_data
+	return newDigit
 
-def featuresV2(digit_data, width, height):
+def featuresV2(newDigit, width, height):
 	# only 1s, exceptions made if theres a line of just 2s
 
 	for x in range(width):
 		for y in range(height):
-			# if (digit_data[x][y] == 2) and (not 1 in digit_data[x]):
-			# 	digit_data[x][y] = 1
-			# elif (digit_data[x][y] == 1):
+			# exception for 2s
+			if (newDigit[x][y] == 2) and (not 1 in newDigit[x]):
+				newDigit[x][y] = 1
+			elif (newDigit[x][y] == 1):
+				newDigit[x][y] = 1
+			else:
+				newDigit[x][y] = 0
+
+			# no exception for 2s
+			# if (digit_data[x][y] == 1):
 			# 	digit_data[x][y] = 1
 			# else:
 			# 	digit_data[x][y] = 0
 
+	return newDigit
 
-			if (digit_data[x][y] == 1):
-				digit_data[x][y] = 1
-			else:
-				digit_data[x][y] = 0
-
-	return digit_data
+def featuresV3(set1, set2, width, height, newDigit):
+	
+	
+	for r in range(height):
+		for c in range(width):
+			v1Val = set1[r][c]
+			v2Val = set2[r][c]
+			newDigit[r][c] = (float(v1Val) + float(v2Val))/2
+	
+	return newDigit
+	
 
 def extract_advanced_features(digit_data, width, height):
 
 	# Feature v1: clean up noise
 	features = []
-
-	#digit_data = featuresV1(digit_data, width, height)  # 80.6 alone
-	digit_data = featuresV2(digit_data, width, height)  # 80.7 alone
-
+	
+	newDigit = deepcopy(digit_data, width, height)
+	
+	set1 = featuresV1(newDigit, width, height)  # 80.6 alone
+	
+	set2 = featuresV2(newDigit, width, height)  # 80.7 alone
+	set3 = featuresV3(set1, set2, width, height, newDigit)
+	
+	
 	# V1 + V2 = 80.0 %
 	for x in range(width):
 		for y in range(height):
-			if digit_data[x][y] == 1:
+			if set3[x][y] == 1:
 				features.append(1)
 			else:
 				features.append(0)
@@ -141,19 +167,19 @@ Extract the final features that you would like to use
 '''
 def extract_final_features(digit_data, width, height):
 	
-	#Assuming this method means choose which of the two extract methods to use
-	featuresBasic = extract_basic_features(digit_data, width, height)
-	featuresAdvanced = extract_advanced_features(digit_data, width, height)
-	featuresFinal = []
-	
-	
-	for index in range(width*height):
-		basVal = featuresBasic[index]
-		advVal = featuresAdvanced[index]
-		finalVal = (float(basVal) + float(advVal)) / 2
-		featuresFinal.append(finalVal)
+	# #Assuming this method means choose which of the two extract methods to use
+	# featuresBasic = extract_basic_features(digit_data, width, height)
+	# featuresAdvanced = extract_advanced_features(digit_data, width, height)
+	# featuresFinal = []
+	#
+	#
+	# for index in range(width*height):
+	# 	basVal = featuresBasic[index]
+	# 	advVal = featuresAdvanced[index]
+	# 	finalVal = (float(basVal) + float(advVal)) / 2
+	# 	featuresFinal.append(finalVal)
 		
-	return featuresFinal
+	return extract_basic_features(digit_data,width,height)
 
 
 '''
@@ -243,7 +269,7 @@ def compute_statistics(data, label, width, height, feature_extractor, percentage
 	condTrue = [[[0 for c in range(width)] for r in range(height)] for l in range(10)]
 	condFalse = [[[0 for c in range(width)] for r in range(height)] for l in range(10)]
 	
-	laplaceK = 0.00001 # 0.00001 gives 0.825 basic and 0.82 advanced
+	laplaceK =  0.00001 # 0.00001 gives 0.825 basic and 0.82 advanced
 	
 	# Conditional Calculation
 	for lIndex in range(0, 10):

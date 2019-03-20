@@ -88,12 +88,12 @@ def _load_all_data():
 	global ALL_TRAINING_LABELS
 	global ALL_VALIDATION_IMAGES
 	global ALL_VALIDATION_LABELS
-
+	
 	ALL_TRAINING_IMAGES = _load_data_file("digitdata/trainingimages",
 	                                      NUMBER_OF_TRAINING_EXAMPLES, DATA_WIDTH, DATA_HEIGHT)
 	ALL_TRAINING_LABELS = _load_label_file("digitdata/traininglabels",
 	                                       NUMBER_OF_TRAINING_EXAMPLES)
-
+	
 	ALL_VALIDATION_IMAGES = _load_data_file("digitdata/validationimages",
 	                                        NUMBER_OF_VALIDATION_EXAMPLES, DATA_WIDTH, DATA_HEIGHT)
 	ALL_VALIDATION_LABELS = _load_label_file("digitdata/validationlabels",
@@ -101,69 +101,66 @@ def _load_all_data():
 
 
 if __name__ == "__main__":
-
+	
 	# Load all data
 	_load_all_data()
-
+	
 	# Pring a random traning example
 	example_number = random.randint(0, NUMBER_OF_TRAINING_EXAMPLES)
 	print "Printing digit example #" + str(example_number + 1) + " with label: " \
 	      + str(ALL_TRAINING_LABELS[example_number])
 	_print_digit_image(ALL_TRAINING_IMAGES[example_number])
 	print
-
-    # Calling the basic feature extractor
+	
+	# Calling the basic feature extractor
 	# features = mp.extract_basic_features(ALL_TRAINING_IMAGES[example_number],
 	#     DATA_WIDTH, DATA_HEIGHT)
-
+	
 	#
 	# # # Compute parameters for a Naive Bayes classifier using the basic feature
 	# # # extractor
 	mp.compute_statistics(ALL_TRAINING_IMAGES, ALL_TRAINING_LABELS, DATA_WIDTH,
-		DATA_HEIGHT, mp.extract_basic_features)
+	                      DATA_HEIGHT, mp.extract_basic_features)
 	# Making predictions on validation data
 	predicted_labels = mp.classify(ALL_VALIDATION_IMAGES, DATA_WIDTH, DATA_HEIGHT,
-		mp.extract_basic_features)
-
-	correct_count = 0.0
-	for ei in range(len(predicted_labels)):
-		if(ALL_VALIDATION_LABELS[ei] == predicted_labels[ei]):
-			correct_count += 1
-
-	print "Correct prediction: " + str(correct_count/len(predicted_labels))
-
-	# features = mp.extract_advanced_features(ALL_TRAINING_IMAGES[example_number], DATA_WIDTH, DATA_HEIGHT)
-
-	# Compute parameters for a Naive Bayes classifier using the basic feature
-	# extractor
-	mp.compute_statistics(ALL_TRAINING_IMAGES, ALL_TRAINING_LABELS, DATA_WIDTH,DATA_HEIGHT, mp.extract_advanced_features)
-
-	# Making predictions on validation data
-	predicted_labels = mp.classify(ALL_VALIDATION_IMAGES, DATA_WIDTH, DATA_HEIGHT,mp.extract_advanced_features)
-
+	                               mp.extract_basic_features)
+	
 	correct_count = 0.0
 	for ei in range(len(predicted_labels)):
 		if (ALL_VALIDATION_LABELS[ei] == predicted_labels[ei]):
 			correct_count += 1
-
+	
 	print "Correct prediction: " + str(correct_count / len(predicted_labels))
-
+	
+	# features = mp.extract_advanced_features(ALL_TRAINING_IMAGES[example_number], DATA_WIDTH, DATA_HEIGHT)
+	
+	# Compute parameters for a Naive Bayes classifier using the basic feature
+	# extractor
+	mp.compute_statistics(ALL_TRAINING_IMAGES, ALL_TRAINING_LABELS, DATA_WIDTH, DATA_HEIGHT,mp.extract_advanced_features)
+	
+	# Making predictions on validation data
+	predicted_labels = mp.classify(ALL_VALIDATION_IMAGES, DATA_WIDTH, DATA_HEIGHT, mp.extract_advanced_features)
+	
+	correct_count = 0.0
+	for ei in range(len(predicted_labels)):
+		if (ALL_VALIDATION_LABELS[ei] == predicted_labels[ei]):
+			correct_count += 1
+	
+	print "Correct prediction: " + str(correct_count / len(predicted_labels))
+	
 	#
 	# features = mp.extract_final_features(ALL_TRAINING_IMAGES[example_number],
 	# 									 DATA_WIDTH, DATA_HEIGHT)
 	# # Compute parameters for a Naive Bayes classifier using the basic feature
 	# # extractor
-	mp.compute_statistics(ALL_TRAINING_IMAGES, ALL_TRAINING_LABELS, DATA_WIDTH,
-	    DATA_HEIGHT, mp.extract_basic_features)
-
+	mp.compute_statistics(ALL_TRAINING_IMAGES, ALL_TRAINING_LABELS, DATA_WIDTH, DATA_HEIGHT,mp.extract_final_features)
+	
 	# Making predictions on validation data
-	predicted_labels = mp.classify(ALL_VALIDATION_IMAGES, DATA_WIDTH, DATA_HEIGHT,
-	    mp.extract_basic_features)
-
+	predicted_labels = mp.classify(ALL_VALIDATION_IMAGES, DATA_WIDTH, DATA_HEIGHT, mp.extract_basic_features)
+	
 	correct_count = 0.0
 	for ei in range(len(predicted_labels)):
-	    if(ALL_VALIDATION_LABELS[ei] == predicted_labels[ei]):
-	        correct_count += 1
-
-	print "Correct prediction: " + str(correct_count/len(predicted_labels))
-
+		if (ALL_VALIDATION_LABELS[ei] == predicted_labels[ei]):
+			correct_count += 1
+	
+	print "Correct prediction: " + str(correct_count / len(predicted_labels))
